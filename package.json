@@ -4,7 +4,8 @@
   "description": "A RESTful API for managing notes, supporting operations like creating, reading, updating, and deleting notes with user authentication and authorization.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start":"nodemon start"
   },
   "repository": {
     "type": "git",
