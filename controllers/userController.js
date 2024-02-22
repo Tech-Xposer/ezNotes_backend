@@ -58,7 +58,7 @@ const createUser = async (req, res) => {
                 }
             });
         }
-        return res.status(400).send({ message: "Bad request" });
+        return res.status(404).send({ message: "user not found" });
     } catch (error) {
         return res.status(500).send('Internal Server Error: ' + error);
     }
@@ -88,4 +88,47 @@ const verifyUser = async (req, res) => {
     }
 };
 
-module.exports = { createUser, verifyUser };
+const loginUser = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        if (!email || !password) {
+            return res.status(400).send({
+                status: "FAILED",
+                message: "email and password required!"
+            })
+        }
+        const user = await userModel.findOne({email})
+        if(user){
+            passwordCheck = await bcrypt.compare(password, user.password)
+            if(!passwordCheck){
+                return res.status(400).send({
+                    status: "FAILED",
+                    message: "password incorrect!"
+                })
+            }
+            if(!user.isVerified){
+                return res.status(400).send({
+                    status:"FAILED",
+                    message:"user not verified"
+                })
+            }
+            const token = await jwt.sign({
+                uid:user._id,
+                email:user.email
+            },process.env.APP_SECRET,{expiresIn:'7d'})
+            return res.status(200).send({
+                status:"SUCCESS",
+                message:"logged in successfully",
+                token:token
+            })
+        }else{
+            return res.send(404).send({
+                status:"FAILED",
+                message:"user not found"
+            })
+        }
+    } catch (error) {
+        return res.status(500).send({message:error.message})
+    }
+}
+module.exports = { createUser, verifyUser, loginUser};
