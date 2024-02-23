@@ -96,7 +96,10 @@ const deleteNote = async (req, res) => {
             });
         }
 
-        return res.status(204).send();
+        return res.status(200).send({
+            status:'SUCCESS',
+            message:'deleted successfully'
+        });
     } catch (error) {
         return res.status(500).send({
             status: "FAILED",
@@ -176,9 +179,17 @@ const searchNotes = async (req, res) => {
         const notesData = await notesModel.find({
             $or: [
                 { title: { $regex: query, $options: "i" } },
-                { content: { $regex: query, $options: "i" } }
+                { content: { $regex: query, $options: "i" } },
+                { tags: { $regex: query, $options: "i" } }
             ]
         })
+        if (notesData.length === 0) {
+            return res.status(404).send({
+                status: "NOT_FOUND",
+                message: "No notes found matching the search query"
+            });
+        }
+
         return res.status(200).send({
             status: "SUCCESS",
             message: "notes found successfully",
@@ -195,14 +206,14 @@ const searchNotes = async (req, res) => {
 
 const makeFavorite = async (req, res) => {
     try {
-        const { _id } = req.body
+        const { _id } = req.params
         if (!mongoose.Types.ObjectId.isValid(_id)) {
             return res.status(400).send({
                 status: "FAILED",
-                message: "Invalid Id!"
+                message: "invalid id!"
             })
         }
-        const updatedNote = await findByIdAndUpdate(_id, { favorite: true })
+        const updatedNote = await notesModel.findByIdAndUpdate(_id, { favorite: true })
         if (!updatedNote) {
             return res.status(404).send({
                 status: "FAILED",
