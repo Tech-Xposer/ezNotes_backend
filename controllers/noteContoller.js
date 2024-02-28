@@ -150,6 +150,7 @@ const updateNote = async (req, res) => {
 
 const getAllNotes = async (req, res) => {
     try {
+        console.log('getAllNotes API');
         const _id = req.user._id;
         const notes = await notesModel.find({ createdBy: _id })
         if (notes.length === 0) {

@@ -46,10 +46,9 @@ const createUser = async (req, res) => {
                 `
             };
             const checkMail = await sendEmail(user.email, mailContent);
-            console.log(checkMail);
             return res.status(201).send({
                 status: "SUCCESS",
-                message: "User registered successfully",
+                message: "User registered successfully! Please Check your Email",
                 link: verificationLink,
                 data: {
                     uid: user._id,
@@ -90,6 +89,7 @@ const verifyUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
     try {
+        
         const { email, password } = req.body;
         if (!email || !password) {
             return res.status(400).send({
@@ -97,6 +97,7 @@ const loginUser = async (req, res) => {
                 message: "email and password required!"
             })
         }
+        console.log(email,password);
         const user = await userModel.findOne({email})
         if(user){
             passwordCheck = await bcrypt.compare(password, user.password)
@@ -122,7 +123,7 @@ const loginUser = async (req, res) => {
                 token:token
             })
         }else{
-            return res.send(404).send({
+            return res.status(404).send({
                 status:"FAILED",
                 message:"user not found"
             })
